@@ -49,8 +49,10 @@ jobs:
       - name: Build and push Docker image
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v6
+        
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: w616/ci-cd-local-deployment:latest
 
