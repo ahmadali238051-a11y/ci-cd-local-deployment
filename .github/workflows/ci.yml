@@ -61,9 +61,16 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: medyagh/setup-minikube@latest
       
-      # Step 9: Deploying app to kubernetes
+      # Step 9. Deploying app to kubernetes
       - name: Deploy to kubernetes
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
+
+      # Step 10. Verify Application Health
+      - name: Verify application health
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          kubectl port-forward deployment/ci-cd-app 8000:8000 &
+          curl --fail http://127.0.0.1:8000/health
