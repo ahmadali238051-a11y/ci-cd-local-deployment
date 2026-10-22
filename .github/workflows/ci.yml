@@ -55,4 +55,9 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: w616/ci-cd-local-deployment:latest
-
+      
+      # Step 8: Deploying app to kubernetes
+      - name: Deploy to kubernetes
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
