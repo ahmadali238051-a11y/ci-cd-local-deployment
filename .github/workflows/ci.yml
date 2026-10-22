@@ -67,10 +67,24 @@ jobs:
         run: |
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
+          kubectl rollout status deployment/ci-cd-app --timeout=120s
 
       # Step 10. Verify Application Health
+      
       - name: Verify application health
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          kubectl port-forward deployment/ci-cd-app 8000:8000 &
-          curl --fail http://127.0.0.1:8000/health
+          kubectl port-forward deployment/ci-cd-app 8000:8000 > /tmp/port-forward.log 2>&1 &
+
+          for i in {1..10}; do
+            if curl --fail --silent http://127.0.0.1:8000/health; then
+              echo "Application health check passed!"
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "Application health check failed"
+          cat /tmp/port-forward.log
+          exit 1
+
